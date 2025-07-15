@@ -35,7 +35,7 @@ class Candidato(db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     cpf = db.Column(db.String(20), unique=True, nullable=False)
     telefone = db.Column(db.String(20), nullable=False)
-    endereco = db.Column(db.Text, nullable=False)
+    cargo_desejado = db.Column(db.String(150), nullable=False)
     caminho_curriculo = db.Column(db.String(255), nullable=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
@@ -46,7 +46,7 @@ class Candidato(db.Model):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     # Validação dos campos
-    required_fields = ['nome', 'email', 'cpf', 'telefone', 'endereco']
+    required_fields = ['nome', 'email', 'cpf', 'telefone', 'cargo_desejado']
     form_data = request.form
     
     for field in required_fields:
@@ -82,7 +82,7 @@ def upload_file():
                 email=form_data['email'],
                 cpf=form_data['cpf'],
                 telefone=form_data['telefone'],
-                endereco=form_data['endereco'],
+                cargo_desejado=form_data['cargo_desejado'],
                 caminho_curriculo=caminho_arquivo
             )
 
