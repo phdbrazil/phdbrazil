@@ -31,12 +31,12 @@ document.getElementById('upload-form').addEventListener('submit', function(event
     })
     .then(response => response.json().then(data => ({ status: response.status, body: data })))
     .then(({ status, body }) => {
-        if (status === 200) {
+        if (status === 200 || status === 201) {
             messageDiv.textContent = body.message;
             messageDiv.classList.add('success');
             form.reset(); // Limpa o formulário
         } else {
-            messageDiv.textContent = 'Erro: ' + body.error;
+            messageDiv.textContent = 'Erro: ' + (body.error || JSON.stringify(body));
             messageDiv.classList.add('error');
         }
     })
