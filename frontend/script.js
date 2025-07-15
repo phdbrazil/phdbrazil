@@ -25,7 +25,7 @@ document.getElementById('upload-form').addEventListener('submit', function(event
     messageDiv.textContent = '';
     messageDiv.className = '';
 
-    fetch('http://127.0.0.1:5000/upload', {
+    fetch('http://phdbrazil.pythonanywhere.com/upload', {
         method: 'POST',
         body: formData
     })
