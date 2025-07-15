@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Talentos</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/imask"></script>
+</head>
+<body>
+    <div class="container">
+        <img src="logo PHD.png" alt="Logo PHD" class="logo">
+        <h1>Banco de Talentos</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00">
+            </div>
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000">
+            </div>
+            <div class="form-group">
+                <label for="endereco">Endereço</label>
+                <textarea id="endereco" name="endereco" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="curriculo">Anexe seu Currículo (PDF, DOC, DOCX)</label>
+                <input type="file" id="curriculo" name="curriculo" accept=".pdf,.doc,.docx" required>
+            </div>
+            <button type="submit">Enviar Cadastro</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
