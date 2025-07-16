@@ -23,12 +23,12 @@ document.getElementById('upload-form').addEventListener('submit', function(event
     const curriculoInput = document.getElementById('curriculo');
     
     // Validação do tipo de arquivo no frontend
-    const allowedExtensions = ['pdf', 'doc', 'docx'];
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
     const fileName = curriculoInput.value;
     const fileExtension = fileName.split('.').pop().toLowerCase();
 
     if (fileName && !allowedExtensions.includes(fileExtension)) {
-        messageDiv.textContent = 'Erro: Tipo de arquivo inválido. Por favor, selecione um arquivo PDF, DOC ou DOCX.';
+        messageDiv.textContent = 'Erro: Tipo de arquivo inválido. Por favor, selecione um arquivo PDF, DOC, DOCX, JPG ou PNG.';
         messageDiv.className = 'error';
         messageDiv.style.display = 'block'; // Garante que a mensagem seja exibida
         return; // Impede o envio do formulário
