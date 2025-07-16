@@ -1,6 +1,6 @@
 import os
 import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import werkzeug
@@ -137,6 +137,52 @@ def get_candidatos():
         print(f"Erro ao buscar candidatos: {e}")
         return jsonify({"error": "Erro interno ao buscar dados"}), 500
 
+# --- Rota para Download de Currículo (Protegida) ---
+@app.route('/download/<path:filename>', methods=['GET'])
+def download_file(filename):
+    SECRET_KEY = os.getenv('API_SECRET_KEY')
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or auth_header != f"Bearer {SECRET_KEY}":
+        return jsonify({"error": "Acesso não autorizado"}), 401
+    
+    try:
+        # Garante que o caminho é seguro e aponta para a pasta de uploads
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except FileNotFoundError:
+        return jsonify({"error": "Arquivo não encontrado"}), 404
+    except Exception as e:
+        print(f"Erro no download: {e}")
+        return jsonify({"error": "Erro interno no servidor"}), 500
+
+# --- Rota para Deletar Candidato (Protegida) ---
+@app.route('/delete/<int:candidato_id>', methods=['DELETE'])
+def delete_candidato(candidato_id):
+    SECRET_KEY = os.getenv('API_SECRET_KEY')
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or auth_header != f"Bearer {SECRET_KEY}":
+        return jsonify({"error": "Acesso não autorizado"}), 401
+
+    try:
+        candidato = Candidato.query.get(candidato_id)
+        if not candidato:
+            return jsonify({"error": "Candidato não encontrado"}), 404
+        
+        # Apaga o arquivo do currículo do disco
+        if os.path.exists(candidato.caminho_curriculo):
+            os.remove(candidato.caminho_curriculo)
+        
+        # Apaga o registro do banco de dados
+        db.session.delete(candidato)
+        db.session.commit()
+        
+        return jsonify({"message": f"Candidato ID {candidato_id} deletado com sucesso"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao deletar: {e}")
+        return jsonify({"error": "Erro interno ao deletar candidato"}), 500
 
 if __name__ == '__main__':
     with app.app_context():
