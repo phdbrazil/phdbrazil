@@ -42,7 +42,10 @@ class Candidato(db.Model):
     def __repr__(self):
         return f'<Candidato {self.nome}>'
 
-# --- Rota da API ---
+    def as_dict(self):
+       return {c.name: { 'value': getattr(self, c.name).isoformat() } if isinstance(getattr(self, c.name), datetime.datetime) else { 'value': getattr(self, c.name) } for c in self.__table__.columns}
+
+# --- Rota da API de Upload ---
 @app.route('/upload', methods=['POST'])
 def upload_file():
     # Validação dos campos
@@ -98,6 +101,32 @@ def upload_file():
             return jsonify({'error': 'Ocorreu um erro interno ao salvar os dados.'}), 500
 
     return jsonify({'error': 'Ocorreu um erro inesperado'}), 500
+
+# --- Rota da API para Ler Candidatos (Protegida) ---
+@app.route('/candidatos', methods=['GET'])
+def get_candidatos():
+    # Pega o token de uma variável de ambiente no servidor
+    SECRET_KEY = os.getenv('API_SECRET_KEY')
+    
+    # Se a chave não estiver configurada no servidor, ninguém pode acessar.
+    if not SECRET_KEY:
+        return jsonify({"error": "Acesso não configurado no servidor"}), 500
+        
+    # Pega o token enviado pelo cliente no cabeçalho
+    auth_header = request.headers.get('Authorization')
+    
+    if not auth_header or auth_header != f"Bearer {SECRET_KEY}":
+        return jsonify({"error": "Acesso não autorizado"}), 401
+    
+    try:
+        candidatos = Candidato.query.order_by(Candidato.data_cadastro.desc()).all()
+        # Converte a lista de objetos para uma lista de dicionários
+        candidatos_list = [candidato.as_dict() for candidato in candidatos]
+        return jsonify(candidatos_list), 200
+    except Exception as e:
+        print(f"Erro ao buscar candidatos: {e}")
+        return jsonify({"error": "Erro interno ao buscar dados"}), 500
+
 
 if __name__ == '__main__':
     with app.app_context():
