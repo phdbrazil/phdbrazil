@@ -23,7 +23,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # --- Pasta de Uploads e Configs ---
-UPLOAD_FOLDER = 'uploads'
+# Define o caminho absoluto para a pasta de uploads para evitar ambiguidades no servidor
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # Caminho para a pasta 'backend'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(BASE_DIR), 'uploads') # Sobe um nível e entra em 'uploads'
+
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -86,6 +89,7 @@ def upload_file():
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             filename_base, file_extension = os.path.splitext(original_filename)
             unique_filename = f"{form_data['cpf'].replace('.', '').replace('-', '')}_{timestamp}{file_extension}"
+            # Usa o caminho absoluto para salvar
             caminho_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
             file.save(caminho_arquivo)
 
@@ -96,7 +100,8 @@ def upload_file():
                 cpf=form_data['cpf'],
                 telefone=form_data['telefone'],
                 cargo_desejado=form_data['cargo_desejado'],
-                caminho_curriculo=caminho_arquivo
+                # Salva apenas o nome do arquivo no banco, não o caminho completo
+                caminho_curriculo=unique_filename
             )
 
             db.session.add(novo_candidato)
@@ -170,8 +175,10 @@ def delete_candidato(candidato_id):
             return jsonify({"error": "Candidato não encontrado"}), 404
         
         # Apaga o arquivo do currículo do disco
-        if os.path.exists(candidato.caminho_curriculo):
-            os.remove(candidato.caminho_curriculo)
+        # Constrói o caminho completo para encontrar o arquivo
+        caminho_completo = os.path.join(app.config['UPLOAD_FOLDER'], candidato.caminho_curriculo)
+        if os.path.exists(caminho_completo):
+            os.remove(caminho_completo)
         
         # Apaga o registro do banco de dados
         db.session.delete(candidato)
