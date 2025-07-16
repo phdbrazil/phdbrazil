@@ -22,11 +22,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# --- Pasta de Uploads ---
+# --- Pasta de Uploads e Configs ---
 UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# --- Função para verificar extensão ---
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- Modelo da Tabela Candidato ---
 class Candidato(db.Model):
@@ -62,6 +69,9 @@ def upload_file():
     file = request.files['curriculo']
     if file.filename == '':
         return jsonify({'error': 'Nenhum arquivo de currículo selecionado'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Tipo de arquivo não permitido. Apenas PDF, DOC e DOCX são aceitos.'}), 400
 
     # Verifica se CPF ou Email já existem
     if Candidato.query.filter_by(email=form_data['email']).first():

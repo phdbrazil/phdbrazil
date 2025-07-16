@@ -84,6 +84,9 @@ venv.bak/
 # Conda
 .condarc
 
+# Custom scripts
+ler_banco.py
+
 # Uploads
 backend/uploads/
 
